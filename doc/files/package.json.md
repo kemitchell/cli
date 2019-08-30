@@ -170,6 +170,20 @@ Both email and url are optional either way.
 
 npm also sets a top-level "maintainers" field with your npm user info.
 
+## funding
+
+You can specify an HTTP endpoint for up-to-date information about ways
+to fund development of your package:
+
+    { "funding": "https://example.com/funding.json" }
+
+For example, you might like to develop your funding data file in your
+source code repository:
+
+    { "funding": "https://raw.githubusercontent.com/{user}/{repo}/master/sustainability.json" }
+
+The end point you specify should respond to unauthenticated GET
+
 ## files
 
 The optional `files` field is an array of file patterns that describes
