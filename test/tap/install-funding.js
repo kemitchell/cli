@@ -10,11 +10,6 @@ var fixture = new Tacks(Dir({
   'b-src': Dir({
     'package.json': File({
       name: 'b',
-      author: 'Author Contributor',
-      contributors: [
-        {name: 'Author Contributor'},
-        'Another Contributor'
-      ],
       funding: 'https://example.com/funding.json',
       version: '1.0.0'
     })
