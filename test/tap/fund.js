@@ -1,21 +1,36 @@
 'use strict'
 var test = require('tap').test
+var http = require('http')
 var Tacks = require('tacks')
 var Dir = Tacks.Dir
 var File = Tacks.File
-var http = require('http')
 var common = require('../common-tap.js')
 
-var testdir = common.pkg
-var port = 8989
 var server
+var PORT = 8989
 
+var CONTRIBUTOR = 'Test Contributor'
+var EMAIL = 'contributor@example.com'
+var HOMEPAGE = 'http://example.com/contributor'
+var CONTRIBUTOR_LINK = 'http://example.com/donate'
+
+var testdir = common.pkg
 var fixture = new Tacks(Dir({
-  'b-src': Dir({
+  node_modules: Dir({
     'package.json': File({
-      name: 'b',
-      funding: 'http://localhost:' + port + '/funding.json',
-      version: '1.0.0'
+      name: 'a',
+      version: '0.0.0',
+      dependencies: { 'has-funding': '7.7.7' }
+    }),
+    'node_modules': Dir({
+      b: Dir({
+        'package.json': File({
+          name: 'has-funding',
+          homepage: 'http://example.com/project',
+          version: '7.7.7',
+          funding: 'http://localhost:' + PORT + '/project.json'
+        })
+      })
     })
   })
 }))
@@ -23,52 +38,60 @@ var fixture = new Tacks(Dir({
 test('setup', function (t) {
   fixture.remove(testdir)
   fixture.create(testdir)
-  t.end()
-  /*
   server = http.createServer()
     .on('request', function (request, response) {
-      response.end(JSON.stringify({
-        project: 'http://example.com/b',
-        contributors: [
-          {
-            name: 'Test Contributor',
-            type: 'person',
-            homepage: 'http://example.com/person',
-            links: ['http://example.com/fund']
-          }
-        ]
-      }))
+      if (request.url === '/project.json') {
+        response.end(JSON.stringify({
+          contributors: [
+            { url: 'http://localhost:' + PORT + '/contributor.json' }
+          ]
+        }))
+      } else if (request.url === '/contributor.json') {
+        response.end(JSON.stringify({
+          name: CONTRIBUTOR,
+          email: EMAIL,
+          homepage: HOMEPAGE,
+          links: [CONTRIBUTOR_LINK]
+        }))
+      } else {
+        response.statusCode = 404
+        response.end()
+      }
     })
-    .listen(port, function () {
+    .listen(PORT, function () {
       t.end()
     })
-    */
 })
 
-test('install', function (t) {
-  common.npm(['install', '--no-save', './b-src'], {cwd: testdir}, function (err, code, stdout, stderr) {
+test('fund --json', function (t) {
+  common.npm(['fund', '--json'], {cwd: testdir}, function (err, code, stdout, stderr) {
     if (err) throw err
-    t.is(code, 0, 'installed successfully')
+    t.is(code, 0, 'exited 0')
     t.is(stderr, '', 'no warnings')
-    t.includes(stdout, '`npm fund`', 'mentions `npm fund`')
+    t.includes(stdout, 'has-funding', 'metions project name')
+    t.includes(stdout, '7.7.7', 'metions project version')
+    t.includes(stdout, CONTRIBUTOR, 'metions contributor name')
+    t.includes(stdout, HOMEPAGE, 'metions contributor homepage')
+    t.includes(stdout, CONTRIBUTOR_LINK, 'metions contributor link')
     t.end()
   })
 })
 
 test('fund', function (t) {
-  common.npm([
-    'fund', '--json'
-  ], {cwd: testdir}, function (err, code, stdout, stderr) {
-    t.ifErr(err, 'fund succeeded')
-    t.equal(0, code, 'fund exited 0')
-    var output = JSON.parse(stdout)
-    t.ok(output, 'output present')
+  common.npm(['fund'], {cwd: testdir}, function (err, code, stdout, stderr) {
+    if (err) throw err
+    t.is(code, 0, 'exited 0')
+    t.is(stderr, '', 'no warnings')
+    t.includes(stdout, 'has-funding', 'metions project name')
+    t.includes(stdout, '7.7.7', 'metions project version')
+    t.includes(stdout, CONTRIBUTOR, 'metions contributor name')
+    t.includes(stdout, HOMEPAGE, 'metions contributor homepage')
+    t.includes(stdout, CONTRIBUTOR_LINK, 'metions contributor link')
     t.end()
   })
 })
-
 test('cleanup', function (t) {
+  server.close()
   fixture.remove(testdir)
-  // server.close()
   t.end()
 })
