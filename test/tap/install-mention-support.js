@@ -30,7 +30,7 @@ var fixture = new Tacks(Dir({
     'package.json': File({
       name: 'b',
       version: '1.0.0',
-      funding: 'http://example.com/fund.json'
+      support: 'http://example.com/support.json'
     })
   })
 }))
@@ -54,7 +54,7 @@ test('install-report', function (t) {
     if (err) throw err
     t.is(code, 0, 'installed successfully')
     t.is(stderr, '', 'no warnings')
-    t.includes(stdout, '`npm fund`', 'metions `npm fund`')
+    t.includes(stdout, '`npm support`', 'metions `npm support`')
     t.end()
   })
 })

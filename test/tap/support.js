@@ -20,15 +20,15 @@ var fixture = new Tacks(Dir({
     'package.json': File({
       name: 'a',
       version: '0.0.0',
-      dependencies: { 'has-funding': '7.7.7' }
+      dependencies: { 'has-support': '7.7.7' }
     }),
     'node_modules': Dir({
       b: Dir({
         'package.json': File({
-          name: 'has-funding',
+          name: 'has-support',
           homepage: 'http://example.com/project',
           version: '7.7.7',
-          funding: 'http://localhost:' + PORT + '/project.json'
+          support: 'http://localhost:' + PORT + '/project.json'
         })
       })
     })
@@ -63,12 +63,12 @@ test('setup', function (t) {
     })
 })
 
-test('fund --json', function (t) {
-  common.npm(['fund', '--json'], {cwd: testdir}, function (err, code, stdout, stderr) {
+test('support --json', function (t) {
+  common.npm(['support', '--json'], {cwd: testdir}, function (err, code, stdout, stderr) {
     if (err) throw err
     t.is(code, 0, 'exited 0')
     t.is(stderr, '', 'no warnings')
-    t.includes(stdout, 'has-funding', 'metions project name')
+    t.includes(stdout, 'has-support', 'metions project name')
     t.includes(stdout, '7.7.7', 'metions project version')
     t.includes(stdout, CONTRIBUTOR, 'metions contributor name')
     t.includes(stdout, HOMEPAGE, 'metions contributor homepage')
@@ -77,12 +77,12 @@ test('fund --json', function (t) {
   })
 })
 
-test('fund', function (t) {
-  common.npm(['fund'], {cwd: testdir}, function (err, code, stdout, stderr) {
+test('support', function (t) {
+  common.npm(['support'], {cwd: testdir}, function (err, code, stdout, stderr) {
     if (err) throw err
     t.is(code, 0, 'exited 0')
     t.is(stderr, '', 'no warnings')
-    t.includes(stdout, 'has-funding', 'metions project name')
+    t.includes(stdout, 'has-support', 'metions project name')
     t.includes(stdout, '7.7.7', 'metions project version')
     t.includes(stdout, CONTRIBUTOR, 'metions contributor name')
     t.includes(stdout, HOMEPAGE, 'metions contributor homepage')
